@@ -23,8 +23,12 @@ router.post("/", async (req, res) => {
     const {
       card_id,
       full_name,
-      birth_date,
+      contact_number,
+      birthdate,
+      sex,
       barangay,
+      address,
+      photo_url,
       representative_name,
       representative_relation,
       account_balance,
@@ -38,7 +42,7 @@ router.post("/", async (req, res) => {
       !full_name ||
       typeof full_name !== "string" ||
       !full_name.trim() ||
-      !birth_date ||
+      !birthdate ||
       !barangay ||
       typeof barangay !== "string" ||
       !barangay.trim()
@@ -50,13 +54,17 @@ router.post("/", async (req, res) => {
     }
 
     const [result] = await db.query(
-      `INSERT INTO beneficiaries (card_id, full_name, birth_date, barangay, representative_name, representative_relation, account_balance, status)
+      `INSERT INTO beneficiaries (card_id, full_name, contact_number, birthdate, sex, barangay, address, representative_name, representative_relation, account_balance, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         card_id.trim(),
         full_name.trim(),
+        contact_number ? contact_number.trim() : null,
         birth_date,
+        sex && ["MALE", "FEMALE"].includes(sex) ? sex : null,
         barangay.trim(),
+        address ? address.trim() : null,
+        photo_url ? photo_url.trim() : null,
         representative_name ? representative_name.trim() : null,
         representative_relation ? representative_relation.trim() : null,
         Number.isFinite(Number(account_balance))
@@ -90,6 +98,7 @@ router.put("/:id", async (req, res) => {
       full_name,
       birth_date,
       barangay,
+      photo_url,
       representative_name,
       representative_relation,
       account_balance,
@@ -117,7 +126,7 @@ router.put("/:id", async (req, res) => {
 
     const [result] = await db.query(
       `UPDATE beneficiaries
-       SET card_id = ?, full_name = ?, birth_date = ?, barangay = ?, representative_name = ?, representative_relation = ?, account_balance = ?, status = ?
+       SET card_id = ?, full_name = ?, birth_date = ?, barangay = ?, photo_url ? photo_url.trim() : null, representative_name = ?, representative_relation = ?, account_balance = ?, status = ?
        WHERE beneficiary_id = ?`,
       [
         card_id.trim(),

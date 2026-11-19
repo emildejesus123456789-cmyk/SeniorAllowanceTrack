@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Beneficiaries from "./beneficiary";
-
+import Disbursements from "./disbursement";
 const API_URL = "http://localhost:5000/api";
 
 const formatPeso = (amount) =>
@@ -344,6 +344,7 @@ export default function Dashboard({ token, admin, onLogout }) {
             <Beneficiaries token={token} />
           </div>
         )}
+        {activeTab === "disbursements" && <Disbursements token={token} />}
       </main>
     </div>
   );

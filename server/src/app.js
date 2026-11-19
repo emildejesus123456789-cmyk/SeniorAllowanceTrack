@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const db = require("./config/db");
 const beneficiaryRoutes = require("./routes/beneficiaryRoutes");
+const transactionRoutes = require("./routes/transactionRoutes"); // Ensure file is routes/transactions.js
 
 const app = express();
 
@@ -20,14 +21,16 @@ app.use(express.json());
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token)
+  if (!token) {
     return res
       .status(401)
       .json({ message: "Access denied. No token provided." });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err)
+    if (err) {
       return res.status(403).json({ message: "Invalid or expired token." });
+    }
     req.admin = decoded;
     next();
   });
@@ -158,8 +161,9 @@ app.get("/api/dashboard", verifyToken, async (req, res) => {
   }
 });
 
-// Mount Beneficiary Routes
-app.use("/api/beneficiaries", beneficiaryRoutes);
+// Mount Protected Module Routes
+app.use("/api/beneficiaries", verifyToken, beneficiaryRoutes);
+app.use("/api/transactions", verifyToken, transactionRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
